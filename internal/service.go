@@ -2,16 +2,22 @@ package internal
 
 import (
 	"context"
+	"net/http"
 
-	"github.com/jcserv/mjurl/internal/transport/http"
+	"github.com/jcserv/mjurl/internal/transport/api"
 	"github.com/jcserv/mjurl/internal/utils/log"
 )
 
 type MJURLService struct {
+	api *api.API
 }
 
 func NewMJURLService() (*MJURLService, error) {
-	return &MJURLService{}, nil
+	s := &MJURLService{}
+	api := api.NewAPI()
+	s.api = api
+
+	return s, nil
 }
 
 // Run starts the service
@@ -26,6 +32,7 @@ func (s *MJURLService) Shutdown() {
 
 func (s *MJURLService) StartHTTP(ctx context.Context) error {
 	log.Info(ctx, "HTTP server started on port 8080")
-	http.RegisterRoutes()
+	r := s.api.RegisterRoutes()
+	http.ListenAndServe(":8080", r)
 	return nil
 }
