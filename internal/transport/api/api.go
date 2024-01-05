@@ -6,6 +6,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	APIV1URLPath = "/api/v1/url"
+)
+
 type API struct {
 }
 
@@ -15,8 +19,8 @@ func NewAPI() *API {
 
 func (a *API) RegisterRoutes() *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/v1/url", a.CreateURL()).Methods(http.MethodPost)
-	r.HandleFunc("/v1/url", a.GetURL()).Methods(http.MethodGet)
+	r.HandleFunc(APIV1URLPath, a.CreateURL()).Methods(http.MethodPost)
+	r.HandleFunc(APIV1URLPath, a.GetURL()).Methods(http.MethodGet)
 	return r
 }
 
