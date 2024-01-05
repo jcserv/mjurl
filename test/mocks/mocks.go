@@ -13,7 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	url "github.com/jcserv/mjurl/internal/url"
+	model "github.com/jcserv/mjurl/model"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -41,10 +41,10 @@ func (m *MockIURLService) EXPECT() *MockIURLServiceMockRecorder {
 }
 
 // GetURLByShort mocks base method.
-func (m *MockIURLService) GetURLByShort(ctx context.Context, short url.ShortURL) (*url.URL, error) {
+func (m *MockIURLService) GetURLByShort(ctx context.Context, short model.ShortURL) (*model.URL, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetURLByShort", ctx, short)
-	ret0, _ := ret[0].(*url.URL)
+	ret0, _ := ret[0].(*model.URL)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -56,10 +56,10 @@ func (mr *MockIURLServiceMockRecorder) GetURLByShort(ctx, short any) *gomock.Cal
 }
 
 // ShortenURL mocks base method.
-func (m *MockIURLService) ShortenURL(ctx context.Context, long url.LongURL) (*url.URL, error) {
+func (m *MockIURLService) ShortenURL(ctx context.Context, long model.LongURL) (*model.URL, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ShortenURL", ctx, long)
-	ret0, _ := ret[0].(*url.URL)
+	ret0, _ := ret[0].(*model.URL)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

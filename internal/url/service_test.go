@@ -4,14 +4,15 @@ import (
 	"context"
 	"testing"
 
+	"github.com/jcserv/mjurl/model"
 	"github.com/stretchr/testify/assert"
 )
 
 func Test_URLService_GetURLByShort(t *testing.T) {
 	tests := []struct {
 		name        string
-		input       ShortURL
-		expected    *URL
+		input       model.ShortURL
+		expected    *model.URL
 		expectedErr error
 	}{
 		{
@@ -34,8 +35,8 @@ func Test_URLService_GetURLByShort(t *testing.T) {
 func Test_URLService_ShortenURL(t *testing.T) {
 	tests := []struct {
 		name        string
-		input       LongURL
-		expected    *URL
+		input       model.LongURL
+		expected    *model.URL
 		expectedErr error
 	}{
 		{

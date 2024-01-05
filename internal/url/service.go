@@ -1,20 +1,14 @@
 package url
 
-import "context"
+import (
+	"context"
 
-type URLID string
-type ShortURL string
-type LongURL string
-
-type URL struct {
-	ID    URLID    `json:"id"`
-	Short ShortURL `json:"short_url"`
-	Long  LongURL  `json:"long_url"`
-}
+	"github.com/jcserv/mjurl/model"
+)
 
 type IURLService interface {
-	GetURLByShort(ctx context.Context, short ShortURL) (*URL, error)
-	ShortenURL(ctx context.Context, long LongURL) (*URL, error)
+	GetURLByShort(ctx context.Context, short model.ShortURL) (*model.URL, error)
+	ShortenURL(ctx context.Context, long model.LongURL) (*model.URL, error)
 }
 
 type URLService struct {
@@ -25,11 +19,11 @@ func NewURLService() IURLService {
 }
 
 // GetURLByShort gets the URL object associated with the given short URL.
-func (s *URLService) GetURLByShort(ctx context.Context, short ShortURL) (*URL, error) {
+func (s *URLService) GetURLByShort(ctx context.Context, short model.ShortURL) (*model.URL, error) {
 	return nil, nil
 }
 
 // ShortenURL is a function that generates a URL object for a given URL.
-func (s *URLService) ShortenURL(ctx context.Context, long LongURL) (*URL, error) {
+func (s *URLService) ShortenURL(ctx context.Context, long model.LongURL) (*model.URL, error) {
 	return nil, nil
 }

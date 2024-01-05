@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/jcserv/mjurl/internal/transport/api"
+	"github.com/jcserv/mjurl/internal/url"
 	"github.com/jcserv/mjurl/internal/utils/log"
 )
 
@@ -14,7 +15,9 @@ type MJURLService struct {
 
 func NewMJURLService() (*MJURLService, error) {
 	s := &MJURLService{}
-	api := api.NewAPI()
+
+	urlService := url.NewURLService()
+	api := api.NewAPI(urlService)
 	s.api = api
 
 	return s, nil
@@ -22,7 +25,8 @@ func NewMJURLService() (*MJURLService, error) {
 
 // Run starts the service
 func (s *MJURLService) Run() error {
-	ctx, _ := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	return s.StartHTTP(ctx)
 }
 

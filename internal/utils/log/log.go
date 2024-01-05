@@ -10,6 +10,7 @@ var (
 	logger *zap.Logger
 )
 
+// TODO: Set up configuration for prod vs. dev
 func Init() *zap.Logger {
 	logger, _ := zap.NewDevelopment()
 	return logger
