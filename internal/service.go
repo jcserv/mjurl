@@ -22,7 +22,7 @@ func NewMJURLService() (*MJURLService, error) {
 	}
 
 	urlService := url.NewURLService()
-	api := api.NewAPI(urlService)
+	api := api.NewAPI(api.Dependencies{URLService: urlService})
 
 	s := &MJURLService{
 		api,
