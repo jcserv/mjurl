@@ -14,7 +14,7 @@ type GetURLByShort struct {
 
 var ErrShortURLEmpty = errors.New("short URL cannot be empty")
 
-func NewGetURLBYShort(short string) (*GetURLByShort, error) {
+func NewGetURLByShort(short string) (*GetURLByShort, error) {
 	c := &GetURLByShort{}
 	s := strings.Trim(short, " ")
 	if s == "" {
@@ -25,6 +25,6 @@ func NewGetURLBYShort(short string) (*GetURLByShort, error) {
 	return c, nil
 }
 
-func (c *GetURLByShort) Execute(ctx context.Context, s IURLService) (*model.URL, error) {
+func (c *GetURLByShort) Execute(ctx context.Context, s model.IURLService) (*model.URL, error) {
 	return s.GetURLByShort(ctx, c.short)
 }

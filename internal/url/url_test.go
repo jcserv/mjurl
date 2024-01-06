@@ -8,6 +8,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func Test_URLService_ShortenURL(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    model.LongURL
+		expected error
+	}{
+		{
+			name:     "simple test",
+			input:    "",
+			expected: nil,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			s := NewURLService()
+			actual := s.ShortenURL(context.Background(), test.input)
+			assert.Equal(t, test.expected, actual)
+		})
+	}
+}
+
 func Test_URLService_GetURLByShort(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -32,7 +53,7 @@ func Test_URLService_GetURLByShort(t *testing.T) {
 	}
 }
 
-func Test_URLService_ShortenURL(t *testing.T) {
+func Test_URLService_GetURLByLong(t *testing.T) {
 	tests := []struct {
 		name        string
 		input       model.LongURL
@@ -49,7 +70,7 @@ func Test_URLService_ShortenURL(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			s := NewURLService()
-			actual, actualErr := s.ShortenURL(context.Background(), test.input)
+			actual, actualErr := s.GetURLByLong(context.Background(), test.input)
 			assert.Equal(t, test.expected, actual)
 			assert.Equal(t, test.expectedErr, actualErr)
 		})

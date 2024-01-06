@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/jcserv/mjurl/internal/transport/api"
@@ -11,14 +12,22 @@ import (
 
 type MJURLService struct {
 	api *api.API
+	cfg *Configuration
 }
 
 func NewMJURLService() (*MJURLService, error) {
-	s := &MJURLService{}
+	cfg, err := NewConfiguration()
+	if err != nil {
+		return nil, err
+	}
 
 	urlService := url.NewURLService()
 	api := api.NewAPI(urlService)
-	s.api = api
+
+	s := &MJURLService{
+		api,
+		cfg,
+	}
 
 	return s, nil
 }
@@ -35,8 +44,8 @@ func (s *MJURLService) Shutdown() {
 }
 
 func (s *MJURLService) StartHTTP(ctx context.Context) error {
-	log.Info(ctx, "HTTP server started on port 8080")
+	log.Info(ctx, fmt.Sprintf("Starting HTTP server on port %s", s.cfg.Port))
 	r := s.api.RegisterRoutes()
-	http.ListenAndServe(":8080", r)
+	http.ListenAndServe(fmt.Sprintf(":%s", s.cfg.Port), r)
 	return nil
 }

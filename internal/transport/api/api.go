@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/jcserv/mjurl/internal/url"
+	"github.com/jcserv/mjurl/model"
 )
 
 const (
@@ -14,10 +15,10 @@ const (
 )
 
 type API struct {
-	URLService url.IURLService
+	URLService model.IURLService
 }
 
-func NewAPI(urlService url.IURLService) *API {
+func NewAPI(urlService model.IURLService) *API {
 	return &API{
 		URLService: urlService,
 	}
@@ -41,7 +42,7 @@ func (a *API) GetURL() http.HandlerFunc {
 		ctx := r.Context()
 		vars := mux.Vars(r)
 
-		cmd, err := url.NewGetURLBYShort(vars["short"])
+		cmd, err := url.NewGetURLByShort(vars["short"])
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return

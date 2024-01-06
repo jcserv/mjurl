@@ -10,18 +10,18 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func Test_NewGetURLByShort(t *testing.T) {
+func Test_NewGetURLByLong(t *testing.T) {
 	tests := []struct {
 		name        string
 		input       string
-		expected    *GetURLByShort
+		expected    *GetURLByLong
 		expectedErr error
 	}{
 		{
 			name:  "happy path",
-			input: mocks.ShortURL,
-			expected: &GetURLByShort{
-				short: model.ShortURL(mocks.ShortURL),
+			input: mocks.LongURL,
+			expected: &GetURLByLong{
+				long: model.LongURL(mocks.LongURL),
 			},
 			expectedErr: nil,
 		},
@@ -29,40 +29,40 @@ func Test_NewGetURLByShort(t *testing.T) {
 			name:        "input cannot be empty",
 			input:       "",
 			expected:    nil,
-			expectedErr: ErrShortURLEmpty,
+			expectedErr: ErrLongURLEmpty,
 		},
 		{
 			name:        "input cannot be empty spaces",
 			input:       "    ",
 			expected:    nil,
-			expectedErr: ErrShortURLEmpty,
+			expectedErr: ErrLongURLEmpty,
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			actual, actualErr := NewGetURLByShort(test.input)
+			actual, actualErr := NewGetURLByLong(test.input)
 			assert.Equal(t, test.expected, actual)
 			assert.Equal(t, test.expectedErr, actualErr)
 		})
 	}
 }
 
-func Test_GetURLByShort_Execute(t *testing.T) {
+func Test_GetURLByLong_Execute(t *testing.T) {
 	tests := []struct {
 		name        string
-		input       *GetURLByShort
+		input       *GetURLByLong
 		mockFunc    func(t *testing.T, s *mocks.MockIURLService)
 		expected    *model.URL
 		expectedErr error
 	}{
 		{
 			name: "simple test",
-			input: &GetURLByShort{
-				short: model.ShortURL(mocks.ShortURL),
+			input: &GetURLByLong{
+				long: model.LongURL(mocks.LongURL),
 			},
 			mockFunc: func(t *testing.T, s *mocks.MockIURLService) {
 				t.Helper()
-				s.EXPECT().GetURLByShort(gomock.Any(), model.ShortURL(mocks.ShortURL)).Return(&model.URL{}, nil)
+				s.EXPECT().GetURLByLong(gomock.Any(), model.LongURL(mocks.LongURL)).Return(&model.URL{}, nil)
 			},
 			expected:    &model.URL{},
 			expectedErr: nil,
