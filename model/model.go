@@ -1,7 +1,9 @@
 package model
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 )
 
 type URLID string
@@ -12,6 +14,14 @@ type URL struct {
 	ID    URLID    `json:"id"`
 	Short ShortURL `json:"short_url"`
 	Long  LongURL  `json:"long_url"`
+}
+
+func (u *URL) ToBytes() *bytes.Buffer {
+	js, err := json.Marshal(u)
+	if err != nil {
+		return nil
+	}
+	return bytes.NewBuffer(js)
 }
 
 type IURLService interface {

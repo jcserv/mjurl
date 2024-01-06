@@ -1,7 +1,7 @@
 package api
 
 import (
-	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,19 +12,22 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
+type APITest struct {
+	name       string
+	inputFunc  func(t *testing.T) *http.Request
+	mockFunc   func(t *testing.T, s *mocks.MockIURLService)
+	assertFunc func(t *testing.T, expected, actual APITestExpectations)
+	expected   APITestExpectations
+}
+
 type APITestExpectations struct {
 	code         int
 	header       http.Header
 	responseBody any
 }
 
-func Test_CreateURL(t *testing.T) {
-	tests := []struct {
-		name      string
-		inputFunc func(t *testing.T) *http.Request
-		mockFunc  func(t *testing.T, s *mocks.MockIURLService)
-		expected  APITestExpectations
-	}{
+func Test_ShortenURL(t *testing.T) {
+	tests := []APITest{
 		{
 			name: "simple test",
 			inputFunc: func(t *testing.T) *http.Request {
@@ -32,6 +35,7 @@ func Test_CreateURL(t *testing.T) {
 				req, _ := http.NewRequest(http.MethodPost, APIV1URLPath, nil)
 				return req
 			},
+			assertFunc: assertStatusCode,
 			expected: APITestExpectations{
 				code: http.StatusOK,
 			},
@@ -53,31 +57,40 @@ func Test_CreateURL(t *testing.T) {
 			r := api.RegisterRoutes()
 			w := httptest.NewRecorder()
 			r.ServeHTTP(w, test.inputFunc(t))
-			assert.Equal(t, test.expected.code, w.Code)
+
+			result := w.Result()
+			actual := APITestExpectations{
+				code:         result.StatusCode,
+				header:       w.Header(),
+				responseBody: w.Body,
+			}
+
+			test.assertFunc(t, test.expected, actual)
 		})
 	}
 }
 
 func Test_GetURL(t *testing.T) {
-	tests := []struct {
-		name      string
-		inputFunc func(t *testing.T) *http.Request
-		mockFunc  func(t *testing.T, s *mocks.MockIURLService)
-		expected  APITestExpectations
-	}{
+	tests := []APITest{
 		{
 			name: "simple test",
 			inputFunc: func(t *testing.T) *http.Request {
 				t.Helper()
-				req, _ := http.NewRequest(http.MethodGet, APIV1URLPath+"/my-short", nil)
+				req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/%s", APIV1URLPath, mocks.URL.Short), nil)
 				return req
 			},
 			mockFunc: func(t *testing.T, s *mocks.MockIURLService) {
 				t.Helper()
-				s.EXPECT().GetURLByShort(gomock.Any(), model.ShortURL("my-short")).Return(&model.URL{}, nil)
+				s.EXPECT().GetURLByShort(gomock.Any(), model.ShortURL(mocks.URL.Short)).
+					Return(mocks.URL, nil)
 			},
+			assertFunc: assertResponse,
 			expected: APITestExpectations{
 				code: http.StatusOK,
+				header: http.Header{
+					"Content-Type": []string{"application/json"},
+				},
+				responseBody: mocks.URL.ToBytes(),
 			},
 		},
 		{
@@ -87,6 +100,7 @@ func Test_GetURL(t *testing.T) {
 				req, _ := http.NewRequest(http.MethodGet, APIV1URLPath+"/", nil)
 				return req
 			},
+			assertFunc: assertStatusCode,
 			expected: APITestExpectations{
 				code: http.StatusNotFound,
 			},
@@ -95,13 +109,15 @@ func Test_GetURL(t *testing.T) {
 			name: "service returns error, should return 500",
 			inputFunc: func(t *testing.T) *http.Request {
 				t.Helper()
-				req, _ := http.NewRequest(http.MethodGet, APIV1URLPath+"/my-short", nil)
+				req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/%s", APIV1URLPath, mocks.ShortURL), nil)
 				return req
 			},
 			mockFunc: func(t *testing.T, s *mocks.MockIURLService) {
 				t.Helper()
-				s.EXPECT().GetURLByShort(gomock.Any(), model.ShortURL("my-short")).Return(nil, errors.New("uh oh spaghetti-o"))
+				s.EXPECT().GetURLByShort(gomock.Any(), model.ShortURL(mocks.ShortURL)).
+					Return(nil, mocks.Err)
 			},
+			assertFunc: assertStatusCode,
 			expected: APITestExpectations{
 				code: http.StatusInternalServerError,
 			},
@@ -123,7 +139,25 @@ func Test_GetURL(t *testing.T) {
 			r := api.RegisterRoutes()
 			w := httptest.NewRecorder()
 			r.ServeHTTP(w, test.inputFunc(t))
-			assert.Equal(t, test.expected.code, w.Code)
+
+			result := w.Result()
+			actual := APITestExpectations{
+				code:         result.StatusCode,
+				header:       w.Header(),
+				responseBody: w.Body,
+			}
+
+			test.assertFunc(t, test.expected, actual)
 		})
 	}
+}
+
+func assertResponse(t *testing.T, expected, actual APITestExpectations) {
+	t.Helper()
+	assert.Equal(t, expected, actual)
+}
+
+func assertStatusCode(t *testing.T, expected, actual APITestExpectations) {
+	t.Helper()
+	assert.Equal(t, expected.code, actual.code)
 }
