@@ -11,9 +11,9 @@ type ShortURL string
 type LongURL string
 
 type URL struct {
-	ID    URLID    `json:"id"`
-	Short ShortURL `json:"short_url"`
-	Long  LongURL  `json:"long_url"`
+	ID    URLID    `json:"id" db:"id"`
+	Short ShortURL `json:"short_url" db:"short_url"`
+	Long  LongURL  `json:"long_url" db:"long_url"`
 }
 
 func (u *URL) ToBytes() *bytes.Buffer {
@@ -32,9 +32,7 @@ type IURLService interface {
 
 type IURLStore interface {
 	CreateURL(ctx context.Context, url *URL) error
-	ReadURL(ctx context.Context, params URLQueryParams) (*URL, error)
-}
-
-type URLQueryParams struct {
-	URL
+	QueryURL(ctx context.Context, id URLID) (*URL, error)
+	QueryURLByShort(ctx context.Context, short ShortURL) (*URL, error)
+	QueryURLByLong(ctx context.Context, long LongURL) (*URL, error)
 }

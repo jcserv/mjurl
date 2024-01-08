@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jcserv/mjurl/internal/transport/api"
 	"github.com/jcserv/mjurl/internal/url"
 	"github.com/jcserv/mjurl/internal/utils/log"
@@ -21,7 +22,12 @@ func NewMJURLService() (*MJURLService, error) {
 		return nil, err
 	}
 
-	urlService := url.NewURLService()
+	dbpool, err := pgxpool.New(context.Background(), cfg.DatabaseURL)
+	if err != nil {
+		return nil, err
+	}
+
+	urlService := url.NewURLService(url.NewPSQLStore(dbpool))
 	api := api.NewAPI(api.Dependencies{URLService: urlService})
 
 	s := &MJURLService{

@@ -121,17 +121,47 @@ func (mr *MockIURLStoreMockRecorder) CreateURL(ctx, url any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateURL", reflect.TypeOf((*MockIURLStore)(nil).CreateURL), ctx, url)
 }
 
-// ReadURL mocks base method.
-func (m *MockIURLStore) ReadURL(ctx context.Context, params model.URLQueryParams) (*model.URL, error) {
+// QueryURL mocks base method.
+func (m *MockIURLStore) QueryURL(ctx context.Context, id model.URLID) (*model.URL, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReadURL", ctx, params)
+	ret := m.ctrl.Call(m, "QueryURL", ctx, id)
 	ret0, _ := ret[0].(*model.URL)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ReadURL indicates an expected call of ReadURL.
-func (mr *MockIURLStoreMockRecorder) ReadURL(ctx, params any) *gomock.Call {
+// QueryURL indicates an expected call of QueryURL.
+func (mr *MockIURLStoreMockRecorder) QueryURL(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadURL", reflect.TypeOf((*MockIURLStore)(nil).ReadURL), ctx, params)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryURL", reflect.TypeOf((*MockIURLStore)(nil).QueryURL), ctx, id)
+}
+
+// QueryURLByLong mocks base method.
+func (m *MockIURLStore) QueryURLByLong(ctx context.Context, long model.LongURL) (*model.URL, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "QueryURLByLong", ctx, long)
+	ret0, _ := ret[0].(*model.URL)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// QueryURLByLong indicates an expected call of QueryURLByLong.
+func (mr *MockIURLStoreMockRecorder) QueryURLByLong(ctx, long any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryURLByLong", reflect.TypeOf((*MockIURLStore)(nil).QueryURLByLong), ctx, long)
+}
+
+// QueryURLByShort mocks base method.
+func (m *MockIURLStore) QueryURLByShort(ctx context.Context, short model.ShortURL) (*model.URL, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "QueryURLByShort", ctx, short)
+	ret0, _ := ret[0].(*model.URL)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// QueryURLByShort indicates an expected call of QueryURLByShort.
+func (mr *MockIURLStoreMockRecorder) QueryURLByShort(ctx, short any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryURLByShort", reflect.TypeOf((*MockIURLStore)(nil).QueryURLByShort), ctx, short)
 }

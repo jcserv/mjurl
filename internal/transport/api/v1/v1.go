@@ -48,7 +48,7 @@ func (a *API) GetURL() http.HandlerFunc {
 
 		u, err := cmd.Execute(ctx, a.URLService)
 		if err != nil {
-			httputil.InternalServerError(w)
+			httputil.InternalServerError(ctx, w, err)
 			return
 		}
 		httputil.OK(w, u)
