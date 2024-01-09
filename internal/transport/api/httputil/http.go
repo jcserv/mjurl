@@ -34,6 +34,11 @@ func InternalServerError(ctx context.Context, w http.ResponseWriter, err error) 
 	writeResponse(w, NewHTTPError(http.StatusInternalServerError, err.Error()))
 }
 
+func PermanentRedirect(w http.ResponseWriter, url string) {
+	w.WriteHeader(http.StatusPermanentRedirect)
+	w.Header().Set("Location", url)
+}
+
 func OK(w http.ResponseWriter, response any) {
 	w.WriteHeader(http.StatusOK)
 	writeResponse(w, response)

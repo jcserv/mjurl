@@ -51,6 +51,6 @@ func (a *API) GetURL() http.HandlerFunc {
 			httputil.InternalServerError(ctx, w, err)
 			return
 		}
-		httputil.OK(w, u)
+		httputil.PermanentRedirect(w, string(u.Long))
 	}
 }
