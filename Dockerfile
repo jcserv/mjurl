@@ -1,4 +1,4 @@
-FROM golang:1.21.0 as builder
+FROM golang:1.21.0-alpine as builder
 ARG CGO_ENABLED=0
 WORKDIR /app
 
@@ -8,6 +8,6 @@ COPY . .
 
 RUN go build /app/cmd/mjurl
 
-FROM scratch
+FROM scratch as release
 COPY --from=builder /app/mjurl /mjurl
 ENTRYPOINT ["/mjurl"]

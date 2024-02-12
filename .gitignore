@@ -25,3 +25,5 @@ go.work
 
 # Environment config
 .env
+
+/db/var
