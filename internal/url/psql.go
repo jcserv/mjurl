@@ -20,7 +20,17 @@ func NewPSQLStore(dbpool *pgxpool.Pool) *PSQLStore {
 
 // CreateURL inserts a new url into the PSQL database
 func (s *PSQLStore) CreateURL(ctx context.Context, url *model.URL) error {
-	return nil
+	conn, err := s.dbpool.Acquire(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Release()
+	statement, err := conn.Conn().Prepare(ctx, "createURL", "INSERT INTO url (short_url, long_url) VALUES (?, ?)")
+	if err != nil {
+		return nil, err
+	}
+	_, err = conn.Conn().Exec(ctx, statement.Name, url.Short, url.Long)
+	return nil, err
 }
 
 // QueryURL queries the database for a URL with the given ID.
