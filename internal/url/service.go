@@ -15,11 +15,11 @@ func NewURLService(urlStore model.IURLStore) model.IURLService {
 }
 
 // ShortenURL is a function that generates a URL object for a given URL.
-func (s *URLService) ShortenURL(ctx context.Context, long model.LongURL) (model.ShortURL error) {
-	
+func (s *URLService) ShortenURL(ctx context.Context, long model.LongURL) (model.ShortURL, error) {
+	return "", nil
 }
 
-func (s *URLService) InsertURL(ctx context.Context, url model.URL) error {
+func (s *URLService) InsertURL(ctx context.Context, url *model.URL) error {
 	return s.urlStore.CreateURL(ctx, url)
 }
 

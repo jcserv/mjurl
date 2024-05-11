@@ -2,33 +2,39 @@ package url
 
 import (
 	"context"
-	"errors"
 	"strings"
 
 	"github.com/jcserv/mjurl/model"
 )
 
-type CreateShortURL struct {
-	insert_args model.URL
+type ShortenURL struct {
+	url *model.URL
 }
 
-func NewCreateShortURL(long string) (*CreateShortURL, error) {
+func NewShortenURL(long string) (*ShortenURL, error) {
 	s := strings.Trim(long, " ")
 	if s == "" {
 		return nil, ErrLongURLEmpty
 	}
-	command := &CreateShortURL{
-		insert_args: model.URL{
-			Long: s
-		}
+	command := &ShortenURL{
+		url: &model.URL{
+			Long: model.LongURL(s),
+		},
 	}
 	return command, nil
 }
 
-func (c *CreateShortURL) Execute(ctx context.Context, s model.IURLService) error {
-	c.insert_args.short_url, err := s.ShortenURL(ctx, c.insert_args.Long)
+func (c *ShortenURL) Execute(ctx context.Context, s model.IURLService) (*model.URL, error) {
+	shortURL, err := s.ShortenURL(ctx, c.url.Long)
 	if err != nil {
 		return nil, err
 	}
-	return s.InsertURL(ctx, c)
+	c.url.Short = shortURL
+
+	err = s.InsertURL(ctx, c.url)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.url, nil
 }
