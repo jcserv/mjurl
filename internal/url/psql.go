@@ -22,15 +22,15 @@ func NewPSQLStore(dbpool *pgxpool.Pool) *PSQLStore {
 func (s *PSQLStore) CreateURL(ctx context.Context, url *model.URL) error {
 	conn, err := s.dbpool.Acquire(ctx)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer conn.Release()
 	statement, err := conn.Conn().Prepare(ctx, "createURL", "INSERT INTO url (short_url, long_url) VALUES (?, ?)")
 	if err != nil {
-		return nil, err
+		return err
 	}
 	_, err = conn.Conn().Exec(ctx, statement.Name, url.Short, url.Long)
-	return nil, err
+	return err
 }
 
 // QueryURL queries the database for a URL with the given ID.

@@ -1,11 +1,12 @@
 package v1
 
 import (
-	"net/http"
 	"encoding/json"
+	"fmt"
+	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/jcserv/mjurl/internal/transport/api/httputil/http"
+	"github.com/jcserv/mjurl/internal/transport/api/httputil"
 	"github.com/jcserv/mjurl/internal/url"
 	"github.com/jcserv/mjurl/model"
 )
@@ -32,8 +33,8 @@ func (a *API) RegisterRoutes(r *mux.Router) {
 
 func (a *API) ShortenURL() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		var body model.LongURL
+		ctx := r.Context()
+		var body string
 		err := json.NewDecoder(r.Body).Decode(&body)
 		if err != nil {
 			httputil.BadRequest(w)
@@ -49,7 +50,7 @@ func (a *API) ShortenURL() http.HandlerFunc {
 			httputil.InternalServerError(ctx, w, err)
 			return
 		}
-		httputil.OK(w, url_model.Short)
+		httputil.OK(w, fmt.Sprintf("%s/%s", "mjurl.com", url_model.Short))
 	}
 }
 

@@ -25,7 +25,8 @@ func (u *URL) ToBytes() *bytes.Buffer {
 }
 
 type IURLService interface {
-	ShortenURL(ctx context.Context, long LongURL) error
+	ShortenURL(ctx context.Context, long LongURL) (ShortURL, error)
+	InsertURL(ctx context.Context, url *URL) error
 	GetURLByShort(ctx context.Context, short ShortURL) (*URL, error)
 	GetURLByLong(ctx context.Context, long LongURL) (*URL, error)
 }
