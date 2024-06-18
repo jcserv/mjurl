@@ -1,6 +1,8 @@
 package api
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -27,19 +29,72 @@ type APITestExpectations struct {
 }
 
 func Test_ShortenURL(t *testing.T) {
+	expectedResp, _ := json.Marshal(mocks.URL.Short)
 	tests := []V1APITest{
-		// {
-		// 	name: "simple test",
-		// 	inputFunc: func(t *testing.T) *http.Request {
-		// 		t.Helper()
-		// 		req, _ := http.NewRequest(http.MethodPost, APIV1URLPath, nil)
-		// 		return req
-		// 	},
-		// 	assertFunc: assertStatusCode,
-		// 	expected: APITestExpectations{
-		// 		code: http.StatusOK,
-		// 	},
-		// },
+		{
+			name: "simple test",
+			inputFunc: func(t *testing.T) *http.Request {
+				t.Helper()
+				input := model.ShortenURLInput{
+					URL: string(mocks.URL.Long),
+				}
+				jsonData, _ := json.Marshal(input)
+				req, _ := http.NewRequest(http.MethodPost, APIV1URLPath, bytes.NewReader(jsonData))
+				return req
+			},
+			mockFunc: func(t *testing.T, s *mocks.MockIURLService) {
+				t.Helper()
+				s.EXPECT().ShortenURL(gomock.Any(), model.LongURL(mocks.URL.Long)).
+					Return(mocks.URL.Short, nil)
+				s.EXPECT().InsertURL(gomock.Any(), mocks.URLWithoutID).
+					Return(nil)
+			},
+			assertFunc: assertResponse,
+			expected: APITestExpectations{
+				code: http.StatusOK,
+				header: http.Header{
+					"Content-Type": []string{"application/json"},
+				},
+				responseBody: bytes.NewBuffer(expectedResp),
+			},
+		},
+		{
+			name: "invalid request body, should return 400",
+			inputFunc: func(t *testing.T) *http.Request {
+				t.Helper()
+				input := model.ShortenURLInput{
+					URL: "",
+				}
+				jsonData, _ := json.Marshal(input)
+				req, _ := http.NewRequest(http.MethodPost, APIV1URLPath, bytes.NewReader(jsonData))
+				return req
+			},
+			assertFunc: assertStatusCode,
+			expected: APITestExpectations{
+				code: http.StatusBadRequest,
+			},
+		},
+		{
+			name: "service function returns error, should return 500",
+			inputFunc: func(t *testing.T) *http.Request {
+				t.Helper()
+				input := model.ShortenURLInput{
+					URL: string(mocks.URL.Long),
+				}
+				jsonData, _ := json.Marshal(input)
+				req, _ := http.NewRequest(http.MethodPost, APIV1URLPath, bytes.NewReader(jsonData))
+				return req
+			},
+			mockFunc: func(t *testing.T, s *mocks.MockIURLService) {
+				t.Helper()
+				s.EXPECT().ShortenURL(gomock.Any(), model.LongURL(mocks.URL.Long)).
+					Return(model.ShortURL(""), mocks.Err)
+			},
+			assertFunc: assertStatusCode,
+			expected: APITestExpectations{
+				code: http.StatusInternalServerError,
+			},
+		},
 	}
 
 	for _, test := range tests {

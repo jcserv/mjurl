@@ -2,11 +2,13 @@ package v1
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/jcserv/mjurl/internal/transport/api/httputil"
 	"github.com/jcserv/mjurl/internal/url"
+	"github.com/jcserv/mjurl/internal/utils/log"
 	"github.com/jcserv/mjurl/model"
 )
 
@@ -34,14 +36,14 @@ func (a *API) ShortenURL() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
-		var body string
-		err := json.NewDecoder(r.Body).Decode(&body)
+		var input model.ShortenURLInput
+		err := json.NewDecoder(r.Body).Decode(&input)
 		if err != nil {
 			httputil.BadRequest(w)
 			return
 		}
 
-		command, err := url.NewShortenURL(body)
+		command, err := url.NewShortenURL(input.URL)
 		if err != nil {
 			httputil.BadRequest(w)
 			return
@@ -49,6 +51,7 @@ func (a *API) ShortenURL() http.HandlerFunc {
 
 		url, err := command.Execute(ctx, a.URLService)
 		if err != nil {
+			log.Error(ctx, fmt.Sprintf("unable to shorten url: %v", err))
 			httputil.InternalServerError(ctx, w, err)
 			return
 		}
@@ -69,6 +72,7 @@ func (a *API) GetURL() http.HandlerFunc {
 
 		u, err := cmd.Execute(ctx, a.URLService)
 		if err != nil {
+			log.Error(ctx, fmt.Sprintf("unable to get url: %v", err))
 			httputil.InternalServerError(ctx, w, err)
 			return
 		}

@@ -24,6 +24,10 @@ func (u *URL) ToBytes() *bytes.Buffer {
 	return bytes.NewBuffer(js)
 }
 
+type ShortenURLInput struct {
+	URL string `json:"url"`
+}
+
 type IURLService interface {
 	InsertURL(ctx context.Context, url *URL) error
 	ShortenURL(ctx context.Context, long LongURL) (ShortURL, error)
