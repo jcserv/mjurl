@@ -26,4 +26,7 @@ go.work
 # Environment config
 .env
 
+# DB files
 /db/var
+
+**/.DS_Store

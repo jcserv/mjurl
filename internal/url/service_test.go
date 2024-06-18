@@ -12,14 +12,15 @@ import (
 
 func Test_URLService_ShortenURL(t *testing.T) {
 	tests := []struct {
-		name     string
-		input    model.LongURL
-		expected error
+		name        string
+		input       model.LongURL
+		expected    model.ShortURL
+		expectedErr error
 	}{
 		{
 			name:     "simple test",
 			input:    "",
-			expected: nil,
+			expected: "",
 		},
 	}
 	for _, test := range tests {
@@ -29,8 +30,9 @@ func Test_URLService_ShortenURL(t *testing.T) {
 
 			urlStore := mocks.NewMockIURLStore(ctrl)
 			s := NewURLService(urlStore)
-			actual := s.ShortenURL(context.Background(), test.input)
+			actual, actualErr := s.ShortenURL(context.Background(), test.input)
 			assert.Equal(t, test.expected, actual)
+			assert.Equal(t, test.expectedErr, actualErr)
 		})
 	}
 }

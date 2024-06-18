@@ -70,12 +70,27 @@ func (mr *MockIURLServiceMockRecorder) GetURLByShort(ctx, short any) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetURLByShort", reflect.TypeOf((*MockIURLService)(nil).GetURLByShort), ctx, short)
 }
 
-// ShortenURL mocks base method.
-func (m *MockIURLService) ShortenURL(ctx context.Context, long model.LongURL) error {
+// InsertURL mocks base method.
+func (m *MockIURLService) InsertURL(ctx context.Context, url *model.URL) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ShortenURL", ctx, long)
+	ret := m.ctrl.Call(m, "InsertURL", ctx, url)
 	ret0, _ := ret[0].(error)
 	return ret0
+}
+
+// InsertURL indicates an expected call of InsertURL.
+func (mr *MockIURLServiceMockRecorder) InsertURL(ctx, url any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertURL", reflect.TypeOf((*MockIURLService)(nil).InsertURL), ctx, url)
+}
+
+// ShortenURL mocks base method.
+func (m *MockIURLService) ShortenURL(ctx context.Context, long model.LongURL) (model.ShortURL, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ShortenURL", ctx, long)
+	ret0, _ := ret[0].(model.ShortURL)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // ShortenURL indicates an expected call of ShortenURL.

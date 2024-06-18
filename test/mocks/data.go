@@ -17,4 +17,9 @@ var URL = &model.URL{
 	Long:  "https://en.wikipedia.org/wiki/Systems_design",
 }
 
+var URLWithoutID = &model.URL{
+	Short: "zn9edcu",
+	Long:  "https://en.wikipedia.org/wiki/Systems_design",
+}
+
 var Err = errors.New("mock err")

@@ -1,6 +1,8 @@
 package api
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -12,7 +14,7 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-type APITest struct {
+type V1APITest struct {
 	name       string
 	inputFunc  func(t *testing.T) *http.Request
 	mockFunc   func(t *testing.T, s *mocks.MockIURLService)
@@ -27,17 +29,70 @@ type APITestExpectations struct {
 }
 
 func Test_ShortenURL(t *testing.T) {
-	tests := []APITest{
+	expectedResp, _ := json.Marshal(mocks.URL.Short)
+	tests := []V1APITest{
 		{
 			name: "simple test",
 			inputFunc: func(t *testing.T) *http.Request {
 				t.Helper()
-				req, _ := http.NewRequest(http.MethodPost, APIV1URLPath, nil)
+				input := model.ShortenURLInput{
+					URL: string(mocks.URL.Long),
+				}
+				jsonData, _ := json.Marshal(input)
+				req, _ := http.NewRequest(http.MethodPost, APIV1URLPath, bytes.NewReader(jsonData))
+				return req
+			},
+			mockFunc: func(t *testing.T, s *mocks.MockIURLService) {
+				t.Helper()
+				s.EXPECT().ShortenURL(gomock.Any(), model.LongURL(mocks.URL.Long)).
+					Return(mocks.URL.Short, nil)
+				s.EXPECT().InsertURL(gomock.Any(), mocks.URLWithoutID).
+					Return(nil)
+			},
+			assertFunc: assertResponse,
+			expected: APITestExpectations{
+				code: http.StatusOK,
+				header: http.Header{
+					"Content-Type": []string{"application/json"},
+				},
+				responseBody: bytes.NewBuffer(expectedResp),
+			},
+		},
+		{
+			name: "invalid request body, should return 400",
+			inputFunc: func(t *testing.T) *http.Request {
+				t.Helper()
+				input := model.ShortenURLInput{
+					URL: "",
+				}
+				jsonData, _ := json.Marshal(input)
+				req, _ := http.NewRequest(http.MethodPost, APIV1URLPath, bytes.NewReader(jsonData))
 				return req
 			},
 			assertFunc: assertStatusCode,
 			expected: APITestExpectations{
-				code: http.StatusOK,
+				code: http.StatusBadRequest,
+			},
+		},
+		{
+			name: "service function returns error, should return 500",
+			inputFunc: func(t *testing.T) *http.Request {
+				t.Helper()
+				input := model.ShortenURLInput{
+					URL: string(mocks.URL.Long),
+				}
+				jsonData, _ := json.Marshal(input)
+				req, _ := http.NewRequest(http.MethodPost, APIV1URLPath, bytes.NewReader(jsonData))
+				return req
+			},
+			mockFunc: func(t *testing.T, s *mocks.MockIURLService) {
+				t.Helper()
+				s.EXPECT().ShortenURL(gomock.Any(), model.LongURL(mocks.URL.Long)).
+					Return(model.ShortURL(""), mocks.Err)
+			},
+			assertFunc: assertStatusCode,
+			expected: APITestExpectations{
+				code: http.StatusInternalServerError,
 			},
 		},
 	}
@@ -73,7 +128,7 @@ func Test_ShortenURL(t *testing.T) {
 }
 
 func Test_GetURL(t *testing.T) {
-	tests := []APITest{
+	tests := []V1APITest{
 		{
 			name: "simple test",
 			inputFunc: func(t *testing.T) *http.Request {
@@ -86,13 +141,13 @@ func Test_GetURL(t *testing.T) {
 				s.EXPECT().GetURLByShort(gomock.Any(), model.ShortURL(mocks.URL.Short)).
 					Return(mocks.URL, nil)
 			},
-			assertFunc: assertResponse,
+			assertFunc: assertStatusAndLocationHeader,
 			expected: APITestExpectations{
-				code: http.StatusOK,
+				code: http.StatusPermanentRedirect,
 				header: http.Header{
 					"Content-Type": []string{"application/json"},
+					"Location":     []string{string(mocks.URL.Long)},
 				},
-				responseBody: mocks.URL.ToBytes(),
 			},
 		},
 		{
@@ -164,4 +219,10 @@ func assertResponse(t *testing.T, expected, actual APITestExpectations) {
 func assertStatusCode(t *testing.T, expected, actual APITestExpectations) {
 	t.Helper()
 	assert.Equal(t, expected.code, actual.code)
+}
+
+func assertStatusAndLocationHeader(t *testing.T, expected, actual APITestExpectations) {
+	t.Helper()
+	assert.Equal(t, expected.code, actual.code)
+	assert.Equal(t, expected.header.Get("Location"), actual.header.Get("Location"))
 }
