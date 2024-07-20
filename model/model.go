@@ -41,3 +41,7 @@ type IURLStore interface {
 	QueryURLByShort(ctx context.Context, short ShortURL) (*URL, error)
 	QueryURLByLong(ctx context.Context, long LongURL) (*URL, error)
 }
+
+type Dependencies struct {
+	URLService IURLService
+}

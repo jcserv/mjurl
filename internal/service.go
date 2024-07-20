@@ -9,6 +9,7 @@ import (
 	"github.com/jcserv/mjurl/internal/transport/api"
 	"github.com/jcserv/mjurl/internal/url"
 	"github.com/jcserv/mjurl/internal/utils/log"
+	"github.com/jcserv/mjurl/model"
 )
 
 type MJURLService struct {
@@ -28,7 +29,7 @@ func NewMJURLService() (*MJURLService, error) {
 	}
 
 	urlService := url.NewURLService(url.NewPSQLStore(dbpool))
-	api := api.NewAPI(api.Dependencies{URLService: urlService})
+	api := api.NewAPI(model.Dependencies{URLService: urlService})
 
 	s := &MJURLService{
 		api,

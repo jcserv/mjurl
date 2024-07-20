@@ -15,11 +15,7 @@ type API struct {
 	V1API *v1.API
 }
 
-type Dependencies struct {
-	URLService model.IURLService
-}
-
-func NewAPI(dependencies Dependencies) *API {
+func NewAPI(dependencies model.Dependencies) *API {
 	return &API{
 		V1API: v1.NewAPI(dependencies.URLService),
 	}

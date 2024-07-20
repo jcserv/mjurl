@@ -1,0 +1,14 @@
+option go_package = "./pb";
+
+service MJUrl {
+    rpc GetURL(ShortURL) returns (LongURL) {}
+    rpc ShortenURL(LongURL) returns (ShortURL) {}
+}
+
+message ShortURL {
+    required string shortURL = 1;
+}
+
+message LongURL {
+    required string longURL = 1;
+}

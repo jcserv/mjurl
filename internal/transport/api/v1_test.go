@@ -108,7 +108,7 @@ func Test_ShortenURL(t *testing.T) {
 				test.mockFunc(t, s)
 			}
 
-			api := NewAPI(Dependencies{
+			api := NewAPI(model.Dependencies{
 				URLService: s,
 			})
 			r := api.RegisterRoutes()
@@ -192,7 +192,7 @@ func Test_GetURL(t *testing.T) {
 				test.mockFunc(t, s)
 			}
 
-			api := NewAPI(Dependencies{
+			api := NewAPI(model.Dependencies{
 				URLService: s,
 			})
 			r := api.RegisterRoutes()

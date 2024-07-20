@@ -19,8 +19,8 @@ func Test_URLService_ShortenURL(t *testing.T) {
 	}{
 		{
 			name:     "simple test",
-			input:    "",
-			expected: "",
+			input:    mocks.URL.Long,
+			expected: "ZbP\x9a\x84ߞ\xe0?\xe1#\v\x9d\xf8\xb8N",
 		},
 	}
 	for _, test := range tests {
