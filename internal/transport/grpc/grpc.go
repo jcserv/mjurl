@@ -1,23 +1,21 @@
 package grpc
 
 import (
-	"context"
-
-	"github.com/jcserv/mjurl/internal/transport/grpc/pb"
+	v1 "github.com/jcserv/mjurl/internal/transport/grpc/v1"
 	"github.com/jcserv/mjurl/model"
+	"google.golang.org/grpc"
 )
 
 type GRPC struct {
+	V1Server *v1.Server
 }
 
 func NewGRPC(dependencies model.Dependencies) *GRPC {
-	return &GRPC{}
+	return &GRPC{
+		V1Server: v1.NewServer(dependencies.URLService),
+	}
 }
 
-func (g *GRPC) GetURL(ctx context.Context, shortURL *pb.ShortURL) (*pb.LongURL, error) {
-	return nil, nil
-}
-
-func (g *GRPC) ShortenURL(ctx context.Context, longURL *pb.LongURL) (*pb.ShortURL, error) {
-	return nil, nil
+func (g *GRPC) RegisterServer(server *grpc.Server) {
+	g.V1Server.RegisterServer(server)
 }
