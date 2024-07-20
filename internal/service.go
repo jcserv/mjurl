@@ -3,17 +3,23 @@ package internal
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
+	"sync"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jcserv/mjurl/internal/transport/api"
+	mjurlGRPC "github.com/jcserv/mjurl/internal/transport/grpc"
 	"github.com/jcserv/mjurl/internal/url"
 	"github.com/jcserv/mjurl/internal/utils/log"
+	"github.com/jcserv/mjurl/model"
+	"google.golang.org/grpc"
 )
 
 type MJURLService struct {
-	api *api.API
-	cfg *Configuration
+	api  *api.API
+	grpc *mjurlGRPC.GRPC
+	cfg  *Configuration
 }
 
 func NewMJURLService() (*MJURLService, error) {
@@ -28,10 +34,13 @@ func NewMJURLService() (*MJURLService, error) {
 	}
 
 	urlService := url.NewURLService(url.NewPSQLStore(dbpool))
-	api := api.NewAPI(api.Dependencies{URLService: urlService})
+	deps := model.Dependencies{URLService: urlService}
+	api := api.NewAPI(deps)
+	grpc := mjurlGRPC.NewGRPC(deps)
 
 	s := &MJURLService{
 		api,
+		grpc,
 		cfg,
 	}
 
@@ -42,7 +51,22 @@ func NewMJURLService() (*MJURLService, error) {
 func (s *MJURLService) Run() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	return s.StartHTTP(ctx)
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func(ctx context.Context) {
+		defer wg.Done()
+		s.StartHTTP(ctx)
+	}(ctx)
+
+	wg.Add(1)
+	go func(ctx context.Context) {
+		defer wg.Done()
+		s.StartGRPC(ctx)
+	}(ctx)
+
+	wg.Wait()
+	return nil
 }
 
 // Shutdown shuts down the service
@@ -50,8 +74,25 @@ func (s *MJURLService) Shutdown() {
 }
 
 func (s *MJURLService) StartHTTP(ctx context.Context) error {
-	log.Info(ctx, fmt.Sprintf("Starting HTTP server on port %s", s.cfg.Port))
+	log.Info(ctx, fmt.Sprintf("Starting HTTP server on port %s", s.cfg.HTTPPort))
 	r := s.api.RegisterRoutes()
-	http.ListenAndServe(fmt.Sprintf(":%s", s.cfg.Port), r)
+	http.ListenAndServe(fmt.Sprintf(":%s", s.cfg.HTTPPort), r)
+	return nil
+}
+
+func (s *MJURLService) StartGRPC(ctx context.Context) error {
+	log.Info(ctx, fmt.Sprintf("Starting GRPC server on port %s", s.cfg.GRPCPort))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", s.cfg.GRPCPort))
+	if err != nil {
+		return err
+	}
+
+	server := grpc.NewServer()
+	s.grpc.RegisterServer(server)
+
+	if err := server.Serve(lis); err != nil {
+		return err
+	}
+
 	return nil
 }
