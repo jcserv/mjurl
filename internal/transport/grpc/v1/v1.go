@@ -22,6 +22,21 @@ func (s *Server) RegisterServer(server *grpc.Server) {
 	pb.RegisterMJUrlServer(server, s)
 }
 
+func (s *Server) ShortenURL(ctx context.Context, longURL *pb.LongURL) (*pb.ShortURL, error) {
+	command, err := url.NewShortenURL(*longURL.LongURL)
+	if err != nil {
+		return nil, nil
+	}
+
+	url, err := command.Execute(ctx, s.URLService)
+	if err != nil {
+		return nil, nil
+	}
+	return &pb.ShortURL{
+		ShortURL: (*string)(&url.Short),
+	}, nil
+}
+
 func (s *Server) GetURL(ctx context.Context, shortURL *pb.ShortURL) (*pb.LongURL, error) {
 	command, err := url.NewGetURLByShort(*shortURL.ShortURL)
 	if err != nil {
@@ -36,8 +51,4 @@ func (s *Server) GetURL(ctx context.Context, shortURL *pb.ShortURL) (*pb.LongURL
 	return &pb.LongURL{
 		LongURL: (*string)(&url.Long),
 	}, nil
-}
-
-func (s *Server) ShortenURL(ctx context.Context, longURL *pb.LongURL) (*pb.ShortURL, error) {
-	return nil, nil
 }
